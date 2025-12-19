@@ -1,0 +1,13 @@
+{
+    "year": "2025",
+    "out_root": "./results",
+    "folder_prefix": "xmas_example_",
+    "people_unmatch": {
+        "Alice": ["Bob", "Carol", "Frank"],
+        "Bob": ["Alice", "Erin", "Dave"],
+        "Carol": ["Bob", "Dave"],
+        "Dave": [],
+        "Erin": ["Carol", "Alice", "Bob", "Dave"],
+        "Frank": null
+    }
+}
