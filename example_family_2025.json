@@ -2,12 +2,20 @@
     "year": "2025",
     "out_root": "./results",
     "folder_prefix": "xmas_example_",
-    "people_unmatch": {
+    "do_not_match": {
         "Alice": ["Bob", "Carol", "Frank"],
         "Bob": ["Alice", "Erin", "Dave"],
         "Carol": ["Bob", "Dave"],
         "Dave": [],
         "Erin": ["Carol", "Alice", "Bob", "Dave"],
         "Frank": null
-    }
+    },
+    "message": [
+        "Dear {getter}, \n",
+        "This year, you need to get a present for...\n",
+        "{reciever} !!!\n",
+        "Please keep the contents of this file secret.\n\n",
+        "Merry Christmas!",
+        "Secret Santa Xx"
+    ]
 }

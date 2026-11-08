@@ -14,6 +14,22 @@ import json
 
 MAX_CLASH = 10
 
+def _write_message(message_lines: list[str], **values: str) -> str:
+    return "".join(message_lines).format(**values)
+
+def _make_unmatched_list(unmatch_list, master_tuple, getter):
+    if unmatch_list is None:
+        return [getter]
+    elif isinstance(unmatch_list, list):
+        if len(unmatch_list) == 0:
+            return [getter]
+        assert all([person in master_tuple for person in unmatch_list]), \
+            f"Unknown name(s) {set(x for x in unmatch_list) - set(p for p in master_tuple)} in unmatch list for {getter}"
+        assert len(unmatch_list) + 1 < len(master_tuple), f"Impossible to sort, too few options for {getter}"
+        return unmatch_list + [getter]
+    else:
+        raise TypeError(f"do_not_match item paired with {getter} must be a list or None, is {type(unmatch_list)}")
+
 def main(config_file, verbose=0):
     """
     Main function to run the secret santa sorter
@@ -24,13 +40,13 @@ def main(config_file, verbose=0):
     if not os.path.exists(outdir):
         os.makedirs(outdir)
 
-    master_tuple = tuple(config_dict['people_unmatch'].keys())
+    master_tuple = tuple(config_dict['do_not_match'].keys())
     unmatch_dict = {}
     pos_match_dict = {}
     match_len_dict = {}
 
     for p in master_tuple:
-        unmatch_dict[p] = _make_unmatched_list(config_dict['people_unmatch'][p], master_tuple, p)
+        unmatch_dict[p] = _make_unmatched_list(config_dict['do_not_match'][p], master_tuple, p)
         pos_match_dict[p] = [person for person in master_tuple if person not in unmatch_dict[p]]
         match_len_dict[p] = len(pos_match_dict[p])
         if match_len_dict[p] < 1:
@@ -89,33 +105,13 @@ def main(config_file, verbose=0):
             done = True
 
     # Write results to file
-    for key, item in matches.items():
+    for getter, reciever in matches.items():
         # write to a text file
-        filename = outdir + key + "_SecretSanta.txt"
-        message = _write_message(key, item)
+        filename = outdir + getter + "_SecretSanta.txt"
+        message_lines = config_dict["message"]
+        message = _write_message(message_lines, getter=getter, reciever=reciever)
         with open(filename, 'w') as out:
             out.write(message)
-
-def _make_unmatched_list(unmatch_list, master_tuple, getter):
-    if unmatch_list is None:
-        return [getter]
-    elif isinstance(unmatch_list, list):
-        if len(unmatch_list) == 0:
-            return [getter]
-        assert all([person in master_tuple for person in unmatch_list]), \
-            f"Unknown name(s) {set(x for x in unmatch_list) - set(p for p in master_tuple)} in unmatch list for {getter}"
-        assert len(unmatch_list) + 1 < len(master_tuple), f"Impossible to sort, too few options for {getter}"
-        return unmatch_list + [getter]
-    else:
-        raise TypeError(f"people_unmatch paired with {getter} must be a list or None, is {type(unmatch_list)}")
-
-def _write_message(getter, reciever):
-    return f"""Dear {getter}, \n
-This year, you need to get a present for...\n
-    {reciever} !!!\n
-Please keep the contents of this file secret
-Merry Christmas! Xx
-"""
 
 
 if __name__ == '__main__':
